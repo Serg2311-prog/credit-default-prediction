@@ -1,0 +1,14 @@
+.venv
+mlruns
+.git
+.dvc/cache
+.pytest_cache
+**/__pycache__
+**/*.pyc
+data
+artifacts
+notebooks
+tests
+*.zip
+*.docx
+.ipynb_checkpoints

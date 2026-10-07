@@ -1,0 +1,50 @@
+stages:
+  prepare:
+    cmd: python -m src.data.make_dataset
+    deps:
+      - src/data/make_dataset.py
+      - src/data/validation.py
+      - src/schema.py
+      - src/config.py
+      - data/raw/UCI_Credit_Card.csv
+      - params.yaml
+    params:
+      - prepare
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - data/processed/data_report.json
+  train:
+    cmd: python -m src.models.train
+    deps:
+      - src/models/train.py
+      - src/models/pipeline.py
+      - src/models/evaluate.py
+      - src/models/predict.py
+      - src/features/build_features.py
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - params.yaml
+    params:
+      - train
+      - prepare.random_state
+      - prepare.target_column
+    outs:
+      - models/credit_default_model.pkl
+      - artifacts/training_summary.json
+  evaluate:
+    cmd: python -m src.models.evaluate
+    deps:
+      - src/models/evaluate.py
+      - src/models/predict.py
+      - models/credit_default_model.pkl
+      - data/processed/test.csv
+      - params.yaml
+    params:
+      - train.threshold
+      - prepare.target_column
+    outs:
+      - artifacts/test_metrics.json
+      - artifacts/roc_curve.png
+      - artifacts/pr_curve.png
+      - artifacts/confusion_matrix.png

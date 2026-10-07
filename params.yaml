@@ -1,0 +1,37 @@
+prepare:
+  raw_filename: UCI_Credit_Card.csv
+  target_column: default.payment.next.month
+  test_size: 0.2
+  random_state: 42
+
+train:
+  cv: 3
+  random_state: 42
+  n_jobs: 1
+  threshold: 0.5
+  experiment_name: Credit_Default_Prediction
+  experiments:
+    - name: logistic_regression
+      algorithm: logistic_regression
+      search: grid
+      param_grid:
+        model__C: [0.1, 1.0, 10.0]
+    - name: random_forest
+      algorithm: random_forest
+      search: random
+      n_iter: 2
+      param_distributions:
+        model__n_estimators: [50, 80]
+        model__max_depth: [6, 10]
+        model__min_samples_leaf: [1, 5]
+    - name: gradient_boosting
+      algorithm: gradient_boosting
+      search: grid
+      param_grid:
+        model__n_estimators: [40]
+        model__learning_rate: [0.1]
+        model__max_depth: [2, 3]
+
+monitor:
+  sample_fraction: 0.5
+  bins: 10

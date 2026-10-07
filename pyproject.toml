@@ -1,0 +1,14 @@
+[project]
+name = "credit-scoring-model"
+version = "1.0.0"
+description = "Прогнозирование дефолта клиента кредитной карты"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312", "py313"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

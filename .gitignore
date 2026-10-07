@@ -1,0 +1,20 @@
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+mlruns/
+*.pyc
+.env
+.mypy_cache/
+.ruff_cache/
+
+# Кэш DVC и результаты пайплайна не коммитятся как обычные файлы Git.
+.dvc/cache/
+.dvc/tmp/
+data/raw/*.csv
+data/processed/*
+!data/processed/.gitkeep
+models/*.pkl
+artifacts/*
+!artifacts/.gitkeep

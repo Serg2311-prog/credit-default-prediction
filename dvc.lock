@@ -1,0 +1,181 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m src.data.make_dataset
+    deps:
+    - path: data/raw/UCI_Credit_Card.csv
+      hash: md5
+      md5: 940b416bb13a9b24bb5c9e1589284005
+      size: 2862995
+    - path: params.yaml
+      hash: md5
+      md5: 768b09830b38b5b3a8c21adb4486e5f0
+      size: 872
+    - path: src/config.py
+      hash: md5
+      md5: b05a37850b0927d23094f9b94a704fcd
+      size: 1839
+    - path: src/data/make_dataset.py
+      hash: md5
+      md5: df1c3844b0790ca6682e19e7c9d414e8
+      size: 5746
+    - path: src/data/validation.py
+      hash: md5
+      md5: 2dd5f3ac65f409ccf92dadd874caeff2
+      size: 4822
+    - path: src/schema.py
+      hash: md5
+      md5: eece0a014470f75af2295145824b6ced
+      size: 2156
+    params:
+      params.yaml:
+        prepare:
+          raw_filename: UCI_Credit_Card.csv
+          target_column: default.payment.next.month
+          test_size: 0.2
+          random_state: 42
+    outs:
+    - path: data/processed/data_report.json
+      hash: md5
+      md5: 271d59e96f6abbf3ce631274b1e83f82
+      size: 1911
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 85bd388d638d86b857c3a249586de917
+      size: 702071
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 8a7e9f4e4deace83478b63ff7432b21c
+      size: 2806456
+  train:
+    cmd: python -m src.models.train
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 85bd388d638d86b857c3a249586de917
+      size: 702071
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 8a7e9f4e4deace83478b63ff7432b21c
+      size: 2806456
+    - path: params.yaml
+      hash: md5
+      md5: 768b09830b38b5b3a8c21adb4486e5f0
+      size: 872
+    - path: src/features/build_features.py
+      hash: md5
+      md5: 607fdf0d6c19cf2a4adad7194e9c4586
+      size: 4007
+    - path: src/models/evaluate.py
+      hash: md5
+      md5: e8fa8ce3c8f3be5c247d15f23fc306f5
+      size: 5365
+    - path: src/models/pipeline.py
+      hash: md5
+      md5: 909369864fe56d7693040f8cd8ffa6c3
+      size: 1491
+    - path: src/models/predict.py
+      hash: md5
+      md5: 566fdc7d71cb413157632bf90b448b07
+      size: 3594
+    - path: src/models/train.py
+      hash: md5
+      md5: 495328f9c1ae614942d1cce8942e24ee
+      size: 10214
+    params:
+      params.yaml:
+        prepare.random_state: 42
+        prepare.target_column: default.payment.next.month
+        train:
+          cv: 3
+          random_state: 42
+          n_jobs: 1
+          threshold: 0.5
+          experiment_name: Credit_Default_Prediction
+          experiments:
+          - name: logistic_regression
+            algorithm: logistic_regression
+            search: grid
+            param_grid:
+              model__C:
+              - 0.1
+              - 1.0
+              - 10.0
+          - name: random_forest
+            algorithm: random_forest
+            search: random
+            n_iter: 2
+            param_distributions:
+              model__n_estimators:
+              - 50
+              - 80
+              model__max_depth:
+              - 6
+              - 10
+              model__min_samples_leaf:
+              - 1
+              - 5
+          - name: gradient_boosting
+            algorithm: gradient_boosting
+            search: grid
+            param_grid:
+              model__n_estimators:
+              - 40
+              model__learning_rate:
+              - 0.1
+              model__max_depth:
+              - 2
+              - 3
+    outs:
+    - path: artifacts/training_summary.json
+      hash: md5
+      md5: f65636ce0c312e988b1b5a84e76a2bde
+      size: 7076
+    - path: models/credit_default_model.pkl
+      hash: md5
+      md5: 2a8f004aa917d8ce9f74f88fffb269a5
+      size: 6024987
+  evaluate:
+    cmd: python -m src.models.evaluate
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 85bd388d638d86b857c3a249586de917
+      size: 702071
+    - path: models/credit_default_model.pkl
+      hash: md5
+      md5: 2a8f004aa917d8ce9f74f88fffb269a5
+      size: 6024987
+    - path: params.yaml
+      hash: md5
+      md5: 768b09830b38b5b3a8c21adb4486e5f0
+      size: 872
+    - path: src/models/evaluate.py
+      hash: md5
+      md5: e8fa8ce3c8f3be5c247d15f23fc306f5
+      size: 5365
+    - path: src/models/predict.py
+      hash: md5
+      md5: 566fdc7d71cb413157632bf90b448b07
+      size: 3594
+    params:
+      params.yaml:
+        prepare.target_column: default.payment.next.month
+        train.threshold: 0.5
+    outs:
+    - path: artifacts/confusion_matrix.png
+      hash: md5
+      md5: 281a415c52512bcbdcb1637f4c057652
+      size: 18415
+    - path: artifacts/pr_curve.png
+      hash: md5
+      md5: a4ad068e7297f41408343aef00ba500b
+      size: 29870
+    - path: artifacts/roc_curve.png
+      hash: md5
+      md5: 5f401653779109c57d59fa8540b5016a
+      size: 31380
+    - path: artifacts/test_metrics.json
+      hash: md5
+      md5: 0a3e21e611ad165b44969c2b7b393ae7
+      size: 489
