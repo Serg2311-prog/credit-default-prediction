@@ -318,7 +318,7 @@ docker compose up --build
 
 Swagger: http://localhost:8000/docs
 
-Образ в этой работе не собирался и не запускался: демон Docker не был запущен. Команды ниже проверены только по файлам Dockerfile и docker-compose.yml.
+Docker-образ credit-scoring-api успешно собран и протестирован локально. Контейнер запущен, Swagger UI доступен по адресу http://localhost:8000/docs. Запрос POST /predict вернул HTTP 200 с результатом prediction=1 и default_probability=0.8534. Для работы предсказаний файл models/credit_default_model.pkl должен присутствовать при сборке образа.
 
 ## 16. Monitoring / PSI
 
@@ -345,7 +345,7 @@ PSI считается для `LIMIT_BAL`, `AGE`, `PAY_0`, `BILL_AMT1`, `PAY_AMT
 Шаги: checkout, Python 3.11, установка `requirements.txt`, flake8, black --check, pytest, `python -m src.data.validation`.
 Секреты не нужны. Валидация в CI использует синтетическую таблицу той же схемы и негативный пример с аномальным возрастом. Реальный CSV в Git не хранится.
 
-Workflow подготовлен в репозитории и на GitHub в этой сессии не запускался.
+GitHub Actions CI успешно выполнен для ветки main (commit c6421b2). Workflow проверил тесты, соответствие Black и Flake8, а также валидацию данных. Все шаги завершились успешно.
 
 ## 18. Результаты
 
@@ -381,8 +381,8 @@ PSI между train и половиной test по всем проверенн
 ## 19. Как полностью воспроизвести проект
 
 ```bash
-git init
-dvc init
+git clone https://github.com/Serg2311-prog/credit-default-prediction.git
+cd credit-default-prediction
 python -m venv .venv
 ```
 
@@ -416,4 +416,4 @@ uvicorn src.api.app:app --host 0.0.0.0 --port 8000
 
 `dvc repro` требует, чтобы `python` указывал на окружение с установленными зависимостями, и чтобы `data/raw/UCI_Credit_Card.csv` был на месте.
 
-Перед первым запуском положите CSV в `data/raw/`. В этой рабочей папке файл уже скопирован из `UCI_Credit_Card.csv.zip`.
+Перед первым запуском скачайте датасет UCI Default of Credit Card Clients и поместите файл UCI_Credit_Card.csv в каталог data/raw/. Исходный CSV не включён в Git-репозиторий, поэтому после клонирования его необходимо добавить вручную.
